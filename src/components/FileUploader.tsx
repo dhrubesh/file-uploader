@@ -3,10 +3,10 @@ import Modal from 'react-awesome-modal';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
 
-const localhost = 'http://localhost:5555/';
 interface Props {
   type: string | Array<string>;
   autoUpload: boolean;
+  url: string;
 }
 
 interface States {
@@ -78,7 +78,7 @@ export class FileUploader extends React.Component<Props, States> {
       this.ProgressModal(0);
       var self = this;
       axios
-        .post(localhost + 'upload-file', file, {
+        .post(this.props.url, file, {
           onUploadProgress: function(progressEvent) {
             console.log('progressEvent', progressEvent);
             let percentCompleted = Math.round(

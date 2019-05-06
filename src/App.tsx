@@ -14,7 +14,11 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <FileUploader type={type} autoUpload={true} />
+        <FileUploader
+          type={type}
+          autoUpload={true}
+          url="http://localhost:5555/upload-file"
+        />
       </header>
     </div>
   );
