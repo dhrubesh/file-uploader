@@ -6,7 +6,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <FileUploader />
+        <FileUploader type="pdf" />
       </header>
     </div>
   );
