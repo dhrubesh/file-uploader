@@ -9,8 +9,11 @@ export class FileUploader extends React.Component<Props, {}> {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(selectorFiles: FileList | null) {
+  handleChange(selectorFiles: any) {
     console.log(selectorFiles);
+    const fd = new FormData();
+    fd.append('file', selectorFiles[0], selectorFiles[0].name);
+    console.log('fd', fd);
   }
 
   render() {
