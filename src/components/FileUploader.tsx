@@ -135,9 +135,15 @@ export class FileUploader extends React.Component<Props, States> {
     console.log(this.props.type);
     return (
       <div>
-        <input type="file" onChange={e => this.handleChange(e.target.files)} />
+        <input
+          className="input-file"
+          type="file"
+          onChange={e => this.handleChange(e.target.files)}
+        />
         {!this.props.autoUpload && (
-          <button onClick={this.handleUpload}>Upload</button>
+          <button className="upload-btn" onClick={this.handleUpload}>
+            Upload
+          </button>
         )}
         <div className="pe">
           <Modal

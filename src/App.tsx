@@ -16,7 +16,7 @@ const App: React.FC = () => {
       <header className="App-header">
         <FileUploader
           type={type}
-          autoUpload={true}
+          // autoUpload={true}
           url="http://localhost:5555/upload-file"
         />
       </header>
