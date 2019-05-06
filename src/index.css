@@ -32,12 +32,14 @@ code {
   transition: width 0.2s ease-in;
 }
 
-.perc-num {
+.perc-text {
   color: black;
   margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .pe {
-  pointer-events: none;
+  /* pointer-events: none; */
   cursor: progress;
+  color: red;
 }

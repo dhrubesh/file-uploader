@@ -2,6 +2,8 @@ import React from 'react';
 import Modal from 'react-awesome-modal';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
+
+const localhost = 'http://localhost:5555/';
 interface Props {
   type: string | Array<string>;
 }
@@ -11,6 +13,7 @@ interface States {
   progressModal: boolean;
   errModal: boolean;
   percentCompleted: number;
+  errMsg: string;
 }
 
 export class FileUploader extends React.Component<Props, States> {
@@ -21,6 +24,7 @@ export class FileUploader extends React.Component<Props, States> {
       progressModal: false,
       errModal: false,
       percentCompleted: 0,
+      errMsg: 'error message',
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
@@ -49,27 +53,27 @@ export class FileUploader extends React.Component<Props, States> {
           fd.append('file', selectorFiles[0], selectorFiles[0].name);
           this.setState({ file: fd });
         } else {
-          // this.typrr()
+          this.ErrorModal('File type not found');
         }
+      } else {
+        this.ErrorModal('File type not found');
       }
     }
-    //Todo:
-    // handle else (throw error)
   }
 
   handleUpload() {
     let { file } = this.state;
     if (file) {
-      this.toggleProgressModal(0);
+      this.ProgressModal(0);
       var self = this;
       axios
-        .post('http://localhost:5555/upload-file', file, {
+        .post(localhost + 'upload-file', file, {
           onUploadProgress: function(progressEvent) {
             console.log('progressEvent', progressEvent);
             let percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            self.toggleProgressModal(percentCompleted);
+            self.ProgressModal(percentCompleted);
             console.log('percentCompleted', percentCompleted);
           },
         })
@@ -79,14 +83,25 @@ export class FileUploader extends React.Component<Props, States> {
         .catch(function(err) {
           console.error(err);
         });
+    } else {
+      this.ErrorModal('File not found. Please choose a file.');
     }
   }
 
-  toggleErrModal() {
-    this.setState(prevState => ({ errModal: !prevState.errModal }));
+  ErrorModal(msg: string) {
+    this.setState({
+      errMsg: msg,
+      errModal: true,
+    });
+
+    setTimeout(() => {
+      this.setState({
+        errModal: false,
+      });
+    }, 1500);
   }
 
-  toggleProgressModal(perc: number) {
+  ProgressModal(perc: number) {
     if (this.state.percentCompleted !== perc) {
       this.setState({
         percentCompleted: perc,
@@ -117,25 +132,23 @@ export class FileUploader extends React.Component<Props, States> {
             width="800"
             height="300"
             effect="fadeInUp"
-            onClickAway={() => this.toggleProgressModal(0)}
           >
             <div>
               <ProgressBar percentage={this.state.percentCompleted} />
             </div>
           </Modal>
+          <Modal
+            visible={this.state.errModal}
+            width="400"
+            height="300"
+            effect="fadeInDown"
+          >
+            <div>
+              <h1>Error</h1>
+              <p>{this.state.errMsg}</p>
+            </div>
+          </Modal>
         </div>
-        <Modal
-          visible={this.state.errModal}
-          width="400"
-          height="300"
-          effect="fadeInDown"
-          onClickAway={() => this.toggleErrModal()}
-        >
-          <div>
-            <h1>Error</h1>
-            <p>Some Error Contents</p>
-          </div>
-        </Modal>
       </div>
     );
   }

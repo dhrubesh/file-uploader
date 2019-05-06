@@ -6,7 +6,7 @@ const App: React.FC = () => {
   let type = [
     'image/jpeg',
     'application/x-iwork-keynote-sffkey',
-    'application/pdf',
+    // 'application/pdf',
   ];
   return (
     <div className="App">
