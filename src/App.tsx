@@ -3,6 +3,9 @@ import FileUploader from './components/FileUploader';
 import './App.css';
 
 const App: React.FC = () => {
+  // type could either be a string ie one type
+  // or array which essentially means
+  // multiple type support
   let type = [
     'image/jpeg',
     'application/x-iwork-keynote-sffkey',
@@ -11,7 +14,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <FileUploader type={type} />
+        <FileUploader type={type} autoUpload={true} />
       </header>
     </div>
   );

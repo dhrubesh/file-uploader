@@ -6,6 +6,7 @@ import ProgressBar from './ProgressBar';
 const localhost = 'http://localhost:5555/';
 interface Props {
   type: string | Array<string>;
+  autoUpload: boolean;
 }
 
 interface States {
@@ -30,6 +31,8 @@ export class FileUploader extends React.Component<Props, States> {
     this.handleUpload = this.handleUpload.bind(this);
   }
 
+  static defaultProps = { autoUpload: false };
+
   handleChange(selectorFiles: any) {
     console.log(selectorFiles);
     if (selectorFiles) {
@@ -39,7 +42,11 @@ export class FileUploader extends React.Component<Props, States> {
       ) {
         const fd = new FormData();
         fd.append('file', selectorFiles[0], selectorFiles[0].name);
-        this.setState({ file: fd });
+        this.setState({ file: fd }, () => {
+          if (this.props.autoUpload) {
+            this.handleUpload();
+          }
+        });
       } else if (Array.isArray(this.props.type)) {
         var found = false;
         for (var el of this.props.type) {
@@ -51,7 +58,11 @@ export class FileUploader extends React.Component<Props, States> {
         if (found) {
           const fd = new FormData();
           fd.append('file', selectorFiles[0], selectorFiles[0].name);
-          this.setState({ file: fd });
+          this.setState({ file: fd }, () => {
+            if (this.props.autoUpload) {
+              this.handleUpload();
+            }
+          });
         } else {
           this.ErrorModal('File type not found');
         }
@@ -125,7 +136,9 @@ export class FileUploader extends React.Component<Props, States> {
     return (
       <div>
         <input type="file" onChange={e => this.handleChange(e.target.files)} />
-        <button onClick={this.handleUpload}>Upload</button>
+        {!this.props.autoUpload && (
+          <button onClick={this.handleUpload}>Upload</button>
+        )}
         <div className="pe">
           <Modal
             visible={this.state.progressModal}
