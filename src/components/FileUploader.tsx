@@ -3,7 +3,7 @@ import Modal from 'react-awesome-modal';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
 interface Props {
-  type: string;
+  type: string | Array<string>;
 }
 
 interface States {
@@ -28,17 +28,36 @@ export class FileUploader extends React.Component<Props, States> {
 
   handleChange(selectorFiles: any) {
     console.log(selectorFiles);
-    if (selectorFiles && this.props.type === selectorFiles[0].type) {
-      const fd = new FormData();
-      fd.append('file', selectorFiles[0], selectorFiles[0].name);
-      this.setState({ file: fd });
+    if (selectorFiles) {
+      if (
+        typeof this.props.type === 'string' &&
+        this.props.type === selectorFiles[0].type
+      ) {
+        const fd = new FormData();
+        fd.append('file', selectorFiles[0], selectorFiles[0].name);
+        this.setState({ file: fd });
+      } else if (Array.isArray(this.props.type)) {
+        var found = false;
+        for (var el of this.props.type) {
+          if (el === selectorFiles[0].type) {
+            found = true;
+            break;
+          }
+        }
+        if (found) {
+          const fd = new FormData();
+          fd.append('file', selectorFiles[0], selectorFiles[0].name);
+          this.setState({ file: fd });
+        } else {
+          // this.typrr()
+        }
+      }
     }
     //Todo:
     // handle else (throw error)
   }
 
   handleUpload() {
-    console.log('here');
     let { file } = this.state;
     if (file) {
       this.toggleProgressModal(0);
@@ -78,7 +97,7 @@ export class FileUploader extends React.Component<Props, States> {
         this.setState(prevState => ({
           progressModal: !prevState.progressModal,
         }));
-      }, 4000);
+      }, 1500);
     } else if (this.state.percentCompleted === 0) {
       this.setState(prevState => ({
         progressModal: !prevState.progressModal,
@@ -92,17 +111,19 @@ export class FileUploader extends React.Component<Props, States> {
       <div>
         <input type="file" onChange={e => this.handleChange(e.target.files)} />
         <button onClick={this.handleUpload}>Upload</button>
-        <Modal
-          visible={this.state.progressModal}
-          width="800"
-          height="300"
-          effect="fadeInUp"
-          onClickAway={() => this.toggleProgressModal(0)}
-        >
-          <div>
-            <ProgressBar percentage={this.state.percentCompleted} />
-          </div>
-        </Modal>
+        <div className="pe">
+          <Modal
+            visible={this.state.progressModal}
+            width="800"
+            height="300"
+            effect="fadeInUp"
+            onClickAway={() => this.toggleProgressModal(0)}
+          >
+            <div>
+              <ProgressBar percentage={this.state.percentCompleted} />
+            </div>
+          </Modal>
+        </div>
         <Modal
           visible={this.state.errModal}
           width="400"

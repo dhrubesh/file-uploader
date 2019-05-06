@@ -13,6 +13,31 @@ code {
     monospace;
 }
 
+.progress-wrapper {
+  margin-top: 100px;
+}
+.progress-bar {
+  position: relative;
+  height: 20px;
+  width: 350px;
+  margin: auto;
+  border-radius: 50px;
+  border: 1px solid aqua;
+}
+
 .perc {
-  color: blue;
+  background: chartreuse;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.2s ease-in;
+}
+
+.perc-num {
+  color: black;
+  margin-bottom: 20px;
+}
+
+.pe {
+  pointer-events: none;
+  cursor: progress;
 }
