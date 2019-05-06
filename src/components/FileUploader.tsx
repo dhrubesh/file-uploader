@@ -1,17 +1,25 @@
 import React from 'react';
+import Modal from 'react-awesome-modal';
 import axios from 'axios';
 
 interface Props {
   type?: string;
 }
 
-interface State {
+interface States {
   file: any;
+  progressModal: boolean;
+  errModal: boolean;
 }
 
-export class FileUploader extends React.Component<Props, State> {
+export class FileUploader extends React.Component<Props, States> {
   constructor(props: any) {
     super(props);
+    this.state = {
+      file: null,
+      progressModal: false,
+      errModal: false,
+    };
     this.handleChange = this.handleChange.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
   }
@@ -31,6 +39,7 @@ export class FileUploader extends React.Component<Props, State> {
     console.log('here');
     let { file } = this.state;
     if (file) {
+      this.toggleProgressModal();
       axios
         .post('http://localhost:5555/upload-file', file, {
           onUploadProgress: function(progressEvent) {
@@ -49,12 +58,33 @@ export class FileUploader extends React.Component<Props, State> {
         });
     }
   }
+
+  toggleErrModal() {
+    this.setState(prevState => ({ errModal: !prevState.errModal }));
+  }
+
+  toggleProgressModal() {
+    this.setState(prevState => ({ progressModal: !prevState.progressModal }));
+  }
+
   render() {
     console.log(this.props.type);
     return (
       <div>
         <input type="file" onChange={e => this.handleChange(e.target.files)} />
         <button onClick={this.handleUpload}>Upload</button>
+        <Modal
+          visible={this.state.progressModal}
+          width="400"
+          height="300"
+          effect="fadeInUp"
+          onClickAway={() => this.toggleProgressModal()}
+        >
+          <div>
+            <h1>Title</h1>
+            <p>Some Contents</p>
+          </div>
+        </Modal>
       </div>
     );
   }
