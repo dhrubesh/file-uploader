@@ -75,7 +75,7 @@ export class FileUploader extends React.Component<Props, States> {
         <button onClick={this.handleUpload}>Upload</button>
         <Modal
           visible={this.state.progressModal}
-          width="400"
+          width="800"
           height="300"
           effect="fadeInUp"
           onClickAway={() => this.toggleProgressModal()}
@@ -83,6 +83,18 @@ export class FileUploader extends React.Component<Props, States> {
           <div>
             <h1>Title</h1>
             <p>Some Contents</p>
+          </div>
+        </Modal>
+        <Modal
+          visible={this.state.errModal}
+          width="400"
+          height="300"
+          effect="fadeInDown"
+          onClickAway={() => this.toggleErrModal()}
+        >
+          <div>
+            <h1>Error</h1>
+            <p>Some Error Contents</p>
           </div>
         </Modal>
       </div>
