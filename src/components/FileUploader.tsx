@@ -1,15 +1,16 @@
 import React from 'react';
 import Modal from 'react-awesome-modal';
 import axios from 'axios';
-
+import ProgressBar from './ProgressBar';
 interface Props {
-  type?: string;
+  type: string;
 }
 
 interface States {
   file: any;
   progressModal: boolean;
   errModal: boolean;
+  percentCompleted: number;
 }
 
 export class FileUploader extends React.Component<Props, States> {
@@ -19,6 +20,7 @@ export class FileUploader extends React.Component<Props, States> {
       file: null,
       progressModal: false,
       errModal: false,
+      percentCompleted: 0,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
@@ -39,7 +41,8 @@ export class FileUploader extends React.Component<Props, States> {
     console.log('here');
     let { file } = this.state;
     if (file) {
-      this.toggleProgressModal();
+      this.toggleProgressModal(0);
+      var self = this;
       axios
         .post('http://localhost:5555/upload-file', file, {
           onUploadProgress: function(progressEvent) {
@@ -47,6 +50,7 @@ export class FileUploader extends React.Component<Props, States> {
             let percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
+            self.toggleProgressModal(percentCompleted);
             console.log('percentCompleted', percentCompleted);
           },
         })
@@ -63,8 +67,23 @@ export class FileUploader extends React.Component<Props, States> {
     this.setState(prevState => ({ errModal: !prevState.errModal }));
   }
 
-  toggleProgressModal() {
-    this.setState(prevState => ({ progressModal: !prevState.progressModal }));
+  toggleProgressModal(perc: number) {
+    if (this.state.percentCompleted !== perc) {
+      this.setState({
+        percentCompleted: perc,
+      });
+    }
+    if (this.state.percentCompleted === 100) {
+      setTimeout(() => {
+        this.setState(prevState => ({
+          progressModal: !prevState.progressModal,
+        }));
+      }, 4000);
+    } else if (this.state.percentCompleted === 0) {
+      this.setState(prevState => ({
+        progressModal: !prevState.progressModal,
+      }));
+    }
   }
 
   render() {
@@ -78,11 +97,10 @@ export class FileUploader extends React.Component<Props, States> {
           width="800"
           height="300"
           effect="fadeInUp"
-          onClickAway={() => this.toggleProgressModal()}
+          onClickAway={() => this.toggleProgressModal(0)}
         >
           <div>
-            <h1>Title</h1>
-            <p>Some Contents</p>
+            <ProgressBar percentage={this.state.percentCompleted} />
           </div>
         </Modal>
         <Modal
