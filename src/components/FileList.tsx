@@ -17,10 +17,12 @@ const FileList: React.FC<Props> = props => {
         props.fileName.map(el => {
           console.log(el.uploaded);
           return (
-            <div key={el.name}>
+            <div className="list-wrapper" key={el.name}>
               {/* assuming file names would be unique */}
-              {el.name}
-              {el.uploaded ? <div>Uploaded</div> : <div>not uploaded</div>}
+              <div>{el.name}</div>
+              <div className="upload-status">
+                {el.uploaded ? 'Uploaded' : <button>Upload</button>}
+              </div>
             </div>
           );
         })}

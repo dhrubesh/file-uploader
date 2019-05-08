@@ -63,7 +63,7 @@ export class FileUploader extends React.Component<Props, States> {
             console.log(this.state.fileName);
 
             if (this.props.autoUpload) {
-              this.handleUpload();
+              this.handleUpload(obj);
             }
           }
         );
@@ -90,7 +90,7 @@ export class FileUploader extends React.Component<Props, States> {
             () => {
               console.log(this.state.fileName);
               if (this.props.autoUpload) {
-                this.handleUpload();
+                this.handleUpload(obj);
               }
             }
           );
@@ -103,9 +103,22 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
-  handleUpload() {
+  updateStatus = (fileObj: fileName) => {
+    var fileName = [...this.state.fileName];
+    for (var el in fileName) {
+      if (fileName[el].name === fileObj.name) {
+        let index = Number(el);
+        fileName[index].uploaded = true;
+        this.setState({
+          fileName: fileName,
+        });
+        break;
+      }
+    }
+  };
+
+  handleUpload(fileObj: any) {
     let { file } = this.state;
-    console.log('file', file);
     if (file) {
       this.ProgressModal(0);
       var self = this;
@@ -121,6 +134,9 @@ export class FileUploader extends React.Component<Props, States> {
           },
         })
         .then(function(res) {
+          console.log('fileObj', fileObj);
+          self.updateStatus(fileObj);
+
           console.log('res', res);
         })
         .catch(function(err) {

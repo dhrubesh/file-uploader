@@ -72,3 +72,16 @@ code {
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
 }
+
+.list-wrapper {
+  width: 800px;
+  margin-top: 20px;
+  position: relative;
+  display: flex;
+}
+
+.upload-status {
+  position: absolute;
+  right: 30px;
+  top: 0px;
+}
