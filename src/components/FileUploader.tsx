@@ -175,6 +175,7 @@ export class FileUploader extends React.Component<Props, States> {
       setTimeout(() => {
         this.setState(prevState => ({
           progressModal: !prevState.progressModal,
+          percentCompleted: 0,
           // file: null,
         }));
       }, 1500);
