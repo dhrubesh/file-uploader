@@ -67,6 +67,7 @@ export class FileUploader extends React.Component<Props, States> {
           uploaded: false,
           percentCompleted: 0,
         };
+
         this.setState(
           prevState => ({
             file: [...prevState.file, fd],
@@ -74,7 +75,12 @@ export class FileUploader extends React.Component<Props, States> {
           }),
           () => {
             if (this.props.autoUpload) {
-              this.handleUpload(obj, this.state.file.length - 1);
+              for (let i in this.state.fileName) {
+                if (this.state.fileName[i].name === obj.name) {
+                  this.handleUpload(obj, Number(i));
+                  break;
+                }
+              }
             }
           }
         );
@@ -94,6 +100,7 @@ export class FileUploader extends React.Component<Props, States> {
             uploaded: false,
             percentCompleted: 0,
           };
+
           this.setState(
             prevState => ({
               file: [...prevState.file, fd],
@@ -101,7 +108,12 @@ export class FileUploader extends React.Component<Props, States> {
             }),
             () => {
               if (this.props.autoUpload) {
-                this.handleUpload(obj, this.state.file.length - 1);
+                for (let i in this.state.fileName) {
+                  if (this.state.fileName[i].name === obj.name) {
+                    this.handleUpload(obj, Number(i));
+                    break;
+                  }
+                }
               }
             }
           );
@@ -178,6 +190,7 @@ export class FileUploader extends React.Component<Props, States> {
       }
     }
   };
+
   multipleUpload = () => {
     var fileName = [...this.state.fileName];
     for (var el in fileName) {
@@ -208,7 +221,10 @@ export class FileUploader extends React.Component<Props, States> {
           progressModal: false,
           active:
             prevState.active.indexOf(index) !== -1
-              ? prevState.active.splice(prevState.active.indexOf(index), 1)
+              ? prevState.active.slice(
+                  prevState.active.indexOf(index) + 1,
+                  prevState.active.length
+                )
               : prevState.active,
         }));
       }, 1500);
