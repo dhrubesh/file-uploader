@@ -35,7 +35,7 @@ export class FileUploader extends React.Component<Props, States> {
 
   handleChange(selectorFiles: any) {
     console.log(selectorFiles);
-    if (selectorFiles) {
+    if (selectorFiles && selectorFiles[0] && selectorFiles[0].type) {
       if (
         typeof this.props.type === 'string' &&
         this.props.type === selectorFiles[0].type
