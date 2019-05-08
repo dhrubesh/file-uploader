@@ -11,12 +11,10 @@ interface Props {
 }
 
 const FileList: React.FC<Props> = props => {
-  console.log(props);
   return (
     <div>
       {props.fileName &&
         props.fileName.map((el, i) => {
-          console.log(el.uploaded);
           return (
             <div className="list-wrapper" key={el.name}>
               {/* assuming file names would be unique */}
