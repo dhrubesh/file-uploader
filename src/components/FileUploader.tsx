@@ -165,6 +165,17 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
+  multipleUpload = () => {
+    var fileName = [...this.state.fileName],
+      file = [...this.state.file];
+    for (var el in fileName) {
+      if (fileName[el].uploaded === false) {
+        let index = Number(el);
+        this.handleSingleUpload(fileName[el], index);
+      }
+    }
+  };
+
   ProgressModal(perc: number) {
     if (this.state.percentCompleted !== perc) {
       this.setState({
@@ -198,11 +209,8 @@ export class FileUploader extends React.Component<Props, States> {
           onChange={e => this.handleChange(e.target.files)}
         />
         {!this.props.autoUpload && (
-          <button
-            className="upload-btn"
-            onClick={() => this.handleUpload({}, 0)}
-          >
-            Upload
+          <button className="upload-btn" onClick={this.multipleUpload}>
+            Upload All
           </button>
         )}
         <FileList
