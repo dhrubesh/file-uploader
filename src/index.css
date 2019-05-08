@@ -62,7 +62,7 @@ code {
 .input-file {
   background-color: #4caf50;
   border: none;
-  color: white;
+  color: transparent;
   padding: 10px 32px;
   text-align: center;
   text-decoration: none;

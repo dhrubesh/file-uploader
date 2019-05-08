@@ -2,6 +2,12 @@ import React from 'react';
 import Modal from 'react-awesome-modal';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
+import FileList from './FileList';
+
+interface fileName {
+  name: string;
+  uploaded: boolean;
+}
 
 interface Props {
   type: string | Array<string>;
@@ -15,6 +21,7 @@ interface States {
   errModal: boolean;
   percentCompleted: number;
   errMsg: string;
+  fileName: fileName[];
 }
 
 export class FileUploader extends React.Component<Props, States> {
@@ -26,6 +33,7 @@ export class FileUploader extends React.Component<Props, States> {
       errModal: false,
       percentCompleted: 0,
       errMsg: 'error message',
+      fileName: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
@@ -42,11 +50,23 @@ export class FileUploader extends React.Component<Props, States> {
       ) {
         const fd = new FormData();
         fd.append('file', selectorFiles[0], selectorFiles[0].name);
-        this.setState({ file: fd }, () => {
-          if (this.props.autoUpload) {
-            this.handleUpload();
+        let obj = {
+          name: selectorFiles[0].name,
+          uploaded: false,
+        };
+        this.setState(
+          {
+            file: fd,
+            fileName: [...this.state.fileName, obj],
+          },
+          () => {
+            console.log(this.state.fileName);
+
+            if (this.props.autoUpload) {
+              this.handleUpload();
+            }
           }
-        });
+        );
       } else if (Array.isArray(this.props.type)) {
         var found = false;
         for (var el of this.props.type) {
@@ -58,11 +78,22 @@ export class FileUploader extends React.Component<Props, States> {
         if (found) {
           const fd = new FormData();
           fd.append('file', selectorFiles[0], selectorFiles[0].name);
-          this.setState({ file: fd }, () => {
-            if (this.props.autoUpload) {
-              this.handleUpload();
+          let obj = {
+            name: selectorFiles[0].name,
+            uploaded: false,
+          };
+          this.setState(
+            {
+              file: fd,
+              fileName: [...this.state.fileName, obj],
+            },
+            () => {
+              console.log(this.state.fileName);
+              if (this.props.autoUpload) {
+                this.handleUpload();
+              }
             }
-          });
+          );
         } else {
           this.ErrorModal('File type not found');
         }
@@ -74,6 +105,7 @@ export class FileUploader extends React.Component<Props, States> {
 
   handleUpload() {
     let { file } = this.state;
+    console.log('file', file);
     if (file) {
       this.ProgressModal(0);
       var self = this;
@@ -133,7 +165,8 @@ export class FileUploader extends React.Component<Props, States> {
   }
 
   render() {
-    console.log(this.props.type);
+    console.log(this.state.fileName);
+
     return (
       <div>
         <input
@@ -146,6 +179,7 @@ export class FileUploader extends React.Component<Props, States> {
             Upload
           </button>
         )}
+        <FileList fileName={this.state.fileName} />
         <div className="pe">
           <Modal
             visible={this.state.progressModal}
