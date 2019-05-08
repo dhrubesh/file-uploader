@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import Modal from 'react-awesome-modal';
 import {
   NotificationContainer,
@@ -46,6 +46,18 @@ export class FileUploader extends React.Component<Props, States> {
 
   static defaultProps = { autoUpload: false };
 
+  componentDidMount() {
+    let div = this.divRef.current;
+    if (div) {
+      div.addEventListener('drop', this.onDrop);
+    }
+  }
+  componentWillUnmount() {
+    let div = this.divRef.current;
+    if (div) {
+      div.removeEventListener('drop', this.onDrop);
+    }
+  }
   handleChange(selectorFiles: any) {
     if (selectorFiles) {
       for (let i = 0; i < selectorFiles.length; i++) {
@@ -235,17 +247,26 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
+  onDrop = (e: any) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      this.handleChange(e.dataTransfer.files);
+    }
+  };
+
+  private divRef = createRef<HTMLDivElement>();
+
   render() {
-    console.log('active', this.state.active);
-    console.log('fileName', this.state.fileName);
     return (
-      <div>
-        <input
-          className="input-file"
-          type="file"
-          multiple={true}
-          onChange={e => this.handleChange(e.target.files)}
-        />
+      <div className="App-header">
+        <div ref={this.divRef}>
+          <input
+            className="input-file"
+            type="file"
+            multiple={true}
+            onChange={e => this.handleChange(e.target.files)}
+          />
+        </div>
         {!this.props.autoUpload && (
           <button className="upload-btn" onClick={this.multipleUpload}>
             Upload All
