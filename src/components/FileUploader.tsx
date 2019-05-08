@@ -25,6 +25,7 @@ interface States {
   progressModal: boolean;
   percentCompleted: number;
   fileName: fileName[];
+  progressFile: fileName;
 }
 
 export class FileUploader extends React.Component<Props, States> {
@@ -35,6 +36,10 @@ export class FileUploader extends React.Component<Props, States> {
       progressModal: false,
       percentCompleted: 0,
       fileName: [],
+      progressFile: {
+        name: '',
+        uploaded: false,
+      },
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
@@ -138,7 +143,8 @@ export class FileUploader extends React.Component<Props, States> {
   handleUpload(fileObj: any, index: number) {
     let { file } = this.state;
     if (file[index]) {
-      this.ProgressModal(0);
+      console.log('fileObj[index]', fileObj);
+      this.ProgressModal(0, fileObj);
       var self = this;
       axios
         .post(this.props.url, file, {
@@ -147,7 +153,7 @@ export class FileUploader extends React.Component<Props, States> {
             let percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            self.ProgressModal(percentCompleted);
+            self.ProgressModal(percentCompleted, fileObj);
             console.log('percentCompleted', percentCompleted);
           },
         })
@@ -165,9 +171,24 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
-  multipleUpload = () => {
+  handleRemove = (fileRemove: fileName) => {
     var fileName = [...this.state.fileName],
       file = [...this.state.file];
+    for (var el in fileName) {
+      if (fileName[el].name === fileRemove.name) {
+        let index = Number(el);
+        fileName.splice(index, 1);
+        file.splice(index, 1);
+        this.setState({
+          fileName: [...fileName],
+          file: [...file],
+        });
+        break;
+      }
+    }
+  };
+  multipleUpload = () => {
+    var fileName = [...this.state.fileName];
     for (var el in fileName) {
       if (fileName[el].uploaded === false) {
         let index = Number(el);
@@ -176,10 +197,11 @@ export class FileUploader extends React.Component<Props, States> {
     }
   };
 
-  ProgressModal(perc: number) {
+  ProgressModal(perc: number, fileObj: fileName) {
     if (this.state.percentCompleted !== perc) {
       this.setState({
         percentCompleted: perc,
+        progressFile: fileObj,
       });
     }
     if (this.state.percentCompleted === 100) {
@@ -226,7 +248,11 @@ export class FileUploader extends React.Component<Props, States> {
             effect="fadeInUp"
           >
             <div>
-              <ProgressBar percentage={this.state.percentCompleted} />
+              <ProgressBar
+                progressFile={this.state.progressFile}
+                percentage={this.state.percentCompleted}
+                handleRemove={this.handleRemove}
+              />
             </div>
           </Modal>
         </div>
