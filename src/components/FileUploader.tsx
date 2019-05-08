@@ -43,23 +43,31 @@ export class FileUploader extends React.Component<Props, States> {
   static defaultProps = { autoUpload: false };
 
   handleChange(selectorFiles: any) {
-    console.log(selectorFiles);
-    if (selectorFiles && selectorFiles[0] && selectorFiles[0].type) {
+    console.log('selectorFiles', selectorFiles);
+    if (selectorFiles) {
+      for (let i = 0; i < selectorFiles.length; i++) {
+        this.updateList(selectorFiles, i);
+      }
+    }
+  }
+
+  updateList = (selectorFiles: any, i: number) => {
+    if (selectorFiles && selectorFiles[i] && selectorFiles[i].type) {
       if (
         typeof this.props.type === 'string' &&
-        this.props.type === selectorFiles[0].type
+        this.props.type === selectorFiles[i].type
       ) {
         const fd = new FormData();
-        fd.append('file', selectorFiles[0], selectorFiles[0].name);
+        fd.append('file', selectorFiles[i], selectorFiles[i].name);
         let obj = {
-          name: selectorFiles[0].name,
+          name: selectorFiles[i].name,
           uploaded: false,
         };
         this.setState(
-          {
-            file: [...this.state.file, fd],
-            fileName: [...this.state.fileName, obj],
-          },
+          prevState => ({
+            file: [...prevState.file, fd],
+            fileName: [...prevState.fileName, obj],
+          }),
           () => {
             console.log(this.state.fileName);
 
@@ -71,38 +79,38 @@ export class FileUploader extends React.Component<Props, States> {
       } else if (Array.isArray(this.props.type)) {
         var found = false;
         for (var el of this.props.type) {
-          if (el === selectorFiles[0].type) {
+          if (el === selectorFiles[i].type) {
             found = true;
             break;
           }
         }
         if (found) {
           const fd = new FormData();
-          fd.append('file', selectorFiles[0], selectorFiles[0].name);
+          fd.append('file', selectorFiles[i], selectorFiles[i].name);
           let obj = {
-            name: selectorFiles[0].name,
+            name: selectorFiles[i].name,
             uploaded: false,
           };
           this.setState(
-            {
-              file: [...this.state.file, fd],
-              fileName: [...this.state.fileName, obj],
-            },
+            prevState => ({
+              file: [...prevState.file, fd],
+              fileName: [...prevState.fileName, obj],
+            }),
             () => {
-              console.log(this.state.fileName);
+              console.log('this.state.fileName', this.state.fileName);
               if (this.props.autoUpload) {
                 this.handleUpload(obj, this.state.file.length - 1);
               }
             }
           );
         } else {
-          this.ErrorModal('File type not found');
+          this.ErrorModal(`invalid file type of ${selectorFiles[i].name}`);
         }
       } else {
-        this.ErrorModal('File type not found');
+        this.ErrorModal(`invalid file type of ${selectorFiles[i].name}`);
       }
     }
-  }
+  };
 
   updateStatus = (fileObj: fileName) => {
     var fileName = [...this.state.fileName];
@@ -194,6 +202,7 @@ export class FileUploader extends React.Component<Props, States> {
         <input
           className="input-file"
           type="file"
+          multiple={true}
           onChange={e => this.handleChange(e.target.files)}
         />
         {!this.props.autoUpload && (
