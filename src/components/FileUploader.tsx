@@ -1,5 +1,10 @@
 import React from 'react';
 import Modal from 'react-awesome-modal';
+import {
+  NotificationContainer,
+  NotificationManager,
+} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
 import FileList from './FileList';
@@ -18,9 +23,7 @@ interface Props {
 interface States {
   file: any;
   progressModal: boolean;
-  errModal: boolean;
   percentCompleted: number;
-  errMsg: string;
   fileName: fileName[];
 }
 
@@ -30,9 +33,7 @@ export class FileUploader extends React.Component<Props, States> {
     this.state = {
       file: [],
       progressModal: false,
-      errModal: false,
       percentCompleted: 0,
-      errMsg: 'error message',
       fileName: [],
     };
     this.handleChange = this.handleChange.bind(this);
@@ -104,10 +105,14 @@ export class FileUploader extends React.Component<Props, States> {
             }
           );
         } else {
-          this.ErrorModal(`invalid file type of ${selectorFiles[i].name}`);
+          NotificationManager.error(
+            `invalid file type of ${selectorFiles[i].name}`
+          );
         }
       } else {
-        this.ErrorModal(`invalid file type of ${selectorFiles[i].name}`);
+        NotificationManager.error(
+          `invalid file type of ${selectorFiles[i].name}`
+        );
       }
     }
   };
@@ -156,21 +161,8 @@ export class FileUploader extends React.Component<Props, States> {
           console.error(err);
         });
     } else {
-      this.ErrorModal('File not found. Please choose a file.');
+      NotificationManager.error('File not found. Please choose a file.');
     }
-  }
-
-  ErrorModal(msg: string) {
-    this.setState({
-      errMsg: msg,
-      errModal: true,
-    });
-
-    setTimeout(() => {
-      this.setState({
-        errModal: false,
-      });
-    }, 1500);
   }
 
   ProgressModal(perc: number) {
@@ -217,6 +209,7 @@ export class FileUploader extends React.Component<Props, States> {
           fileName={this.state.fileName}
           handleSingleUpload={this.handleSingleUpload}
         />
+        <NotificationContainer />
         <div className="pe">
           <Modal
             visible={this.state.progressModal}
@@ -226,17 +219,6 @@ export class FileUploader extends React.Component<Props, States> {
           >
             <div>
               <ProgressBar percentage={this.state.percentCompleted} />
-            </div>
-          </Modal>
-          <Modal
-            visible={this.state.errModal}
-            width="400"
-            height="300"
-            effect="fadeInDown"
-          >
-            <div>
-              <h1>Error</h1>
-              <p>{this.state.errMsg}</p>
             </div>
           </Modal>
         </div>
