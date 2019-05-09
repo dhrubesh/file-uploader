@@ -205,11 +205,16 @@ export class FileUploader extends React.Component<Props, States> {
 
   multipleUpload = () => {
     var fileName = [...this.state.fileName];
+    var found = false;
     for (var el in fileName) {
       if (fileName[el].uploaded === false) {
+        found = true;
         let index = Number(el);
         this.handleSingleUpload(fileName[el], index);
       }
+    }
+    if (!found) {
+      NotificationManager.info("Be rest assured you've uploaded everything");
     }
   };
 
