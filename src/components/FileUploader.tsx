@@ -8,7 +8,8 @@ import 'react-notifications/lib/notifications.css';
 import axios from 'axios';
 import ProgressBar from './ProgressBar';
 import FileList from './FileList';
-
+import { uuidv4 } from '../helper';
+import { file } from '@babel/types';
 interface fileName {
   id: string;
   name: string;
@@ -67,14 +68,6 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
-  uuidv4 = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = (Math.random() * 16) | 0,
-        v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  };
-
   updateList = (selectorFiles: any, i: number) => {
     if (selectorFiles && selectorFiles[i] && selectorFiles[i].type) {
       if (
@@ -109,7 +102,7 @@ export class FileUploader extends React.Component<Props, States> {
     const fd = new FormData();
     fd.append('file', selectorFiles[i], selectorFiles[i].name);
     let obj = {
-      id: this.uuidv4(),
+      id: uuidv4(),
       name: selectorFiles[i].name,
       uploaded: false,
       percentCompleted: 0,
@@ -139,9 +132,14 @@ export class FileUploader extends React.Component<Props, States> {
       if (fileName[el].name === fileObj.name) {
         let index = Number(el);
         fileName[index].uploaded = true;
-        this.setState({
-          fileName: fileName,
-        });
+        this.setState(
+          {
+            fileName: fileName,
+          },
+          () => {
+            this.ProgressModal(100, index, fileName[index].id);
+          }
+        );
         break;
       }
     }
@@ -222,6 +220,24 @@ export class FileUploader extends React.Component<Props, States> {
     }
   };
 
+  checkUploadStatus = () => {
+    var fileName = [...this.state.fileName],
+      active = [...this.state.active],
+      allUploaded = false;
+    for (var el in active) {
+      for (var fl in fileName) {
+        if (active[el] === fileName[fl].id) {
+          if (!fileName[el].uploaded) {
+            return false;
+          } else {
+            allUploaded = true;
+          }
+        }
+      }
+    }
+    return allUploaded;
+  };
+
   ProgressModal(perc: number, index: number, id: string) {
     var fileName = [...this.state.fileName];
 
@@ -232,12 +248,16 @@ export class FileUploader extends React.Component<Props, States> {
       }));
     }
     if (fileName[index].percentCompleted === 100) {
-      setTimeout(() => {
-        this.setState(prevState => ({
-          progressModal: false,
-          active: [],
-        }));
-      }, 1500);
+      let allUploaded = this.checkUploadStatus();
+      console.log('allUploaded', allUploaded);
+      if (allUploaded) {
+        setTimeout(() => {
+          this.setState(prevState => ({
+            progressModal: false,
+            active: [],
+          }));
+        }, 2000);
+      }
     } else if (fileName[index].percentCompleted === 0) {
       this.setState(prevState => ({
         progressModal: true,
