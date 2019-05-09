@@ -1,5 +1,6 @@
 import React from 'react';
 interface file {
+  id: string;
   name: string;
   uploaded: boolean;
   percentCompleted: number;
@@ -7,7 +8,7 @@ interface file {
 interface Props {
   progressFile: file[];
   handleRemove: (file: file) => void;
-  active: Array<Number>;
+  active: Array<string>;
 }
 
 const App: React.FC<Props> = props => {
@@ -15,8 +16,8 @@ const App: React.FC<Props> = props => {
     <div className="progress-wrapper">
       {props.progressFile.map((el, index) => {
         return (
-          props.active.indexOf(index) !== -1 && (
-            <div className="progress-child" key={el.name}>
+          props.active.indexOf(el.id) !== -1 && (
+            <div className="progress-child" key={el.id}>
               <div className="perc-text">{el.name}</div>
               <div className="progress-bar">
                 <div

@@ -10,6 +10,7 @@ import ProgressBar from './ProgressBar';
 import FileList from './FileList';
 
 interface fileName {
+  id: string;
   name: string;
   uploaded: boolean;
   percentCompleted: number;
@@ -26,7 +27,7 @@ interface States {
   progressModal: boolean;
   percentCompleted: number;
   fileName: fileName[];
-  active: Array<Number>;
+  active: Array<string>;
 }
 
 export class FileUploader extends React.Component<Props, States> {
@@ -66,36 +67,21 @@ export class FileUploader extends React.Component<Props, States> {
     }
   }
 
+  uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (Math.random() * 16) | 0,
+        v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
   updateList = (selectorFiles: any, i: number) => {
     if (selectorFiles && selectorFiles[i] && selectorFiles[i].type) {
       if (
         typeof this.props.type === 'string' &&
         this.props.type === selectorFiles[i].type
       ) {
-        const fd = new FormData();
-        fd.append('file', selectorFiles[i], selectorFiles[i].name);
-        let obj = {
-          name: selectorFiles[i].name,
-          uploaded: false,
-          percentCompleted: 0,
-        };
-
-        this.setState(
-          prevState => ({
-            file: [...prevState.file, fd],
-            fileName: [...prevState.fileName, obj],
-          }),
-          () => {
-            if (this.props.autoUpload) {
-              for (let i in this.state.fileName) {
-                if (this.state.fileName[i].name === obj.name) {
-                  this.handleUpload(obj, Number(i));
-                  break;
-                }
-              }
-            }
-          }
-        );
+        this.addNewFile(selectorFiles, i);
       } else if (Array.isArray(this.props.type)) {
         var found = false;
         for (var el of this.props.type) {
@@ -105,30 +91,7 @@ export class FileUploader extends React.Component<Props, States> {
           }
         }
         if (found) {
-          const fd = new FormData();
-          fd.append('file', selectorFiles[i], selectorFiles[i].name);
-          let obj = {
-            name: selectorFiles[i].name,
-            uploaded: false,
-            percentCompleted: 0,
-          };
-
-          this.setState(
-            prevState => ({
-              file: [...prevState.file, fd],
-              fileName: [...prevState.fileName, obj],
-            }),
-            () => {
-              if (this.props.autoUpload) {
-                for (let i in this.state.fileName) {
-                  if (this.state.fileName[i].name === obj.name) {
-                    this.handleUpload(obj, Number(i));
-                    break;
-                  }
-                }
-              }
-            }
-          );
+          this.addNewFile(selectorFiles, i);
         } else {
           NotificationManager.error(
             `invalid file type of ${selectorFiles[i].name}`
@@ -140,6 +103,34 @@ export class FileUploader extends React.Component<Props, States> {
         );
       }
     }
+  };
+
+  addNewFile = (selectorFiles: any, i: number) => {
+    const fd = new FormData();
+    fd.append('file', selectorFiles[i], selectorFiles[i].name);
+    let obj = {
+      id: this.uuidv4(),
+      name: selectorFiles[i].name,
+      uploaded: false,
+      percentCompleted: 0,
+    };
+
+    this.setState(
+      prevState => ({
+        file: [...prevState.file, fd],
+        fileName: [...prevState.fileName, obj],
+      }),
+      () => {
+        if (this.props.autoUpload) {
+          for (let i in this.state.fileName) {
+            if (this.state.fileName[i].name === obj.name) {
+              this.handleUpload(obj, Number(i));
+              break;
+            }
+          }
+        }
+      }
+    );
   };
 
   updateStatus = (fileObj: fileName) => {
@@ -163,7 +154,7 @@ export class FileUploader extends React.Component<Props, States> {
   handleUpload(fileObj: any, index: number) {
     let { file } = this.state;
     if (file[index]) {
-      this.ProgressModal(0, index);
+      this.ProgressModal(0, index, fileObj.id);
       var self = this;
       axios
         .post(this.props.url, file, {
@@ -171,7 +162,7 @@ export class FileUploader extends React.Component<Props, States> {
             let percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            self.ProgressModal(percentCompleted, index);
+            self.ProgressModal(percentCompleted, index, fileObj.id);
           },
         })
         .then(function(res) {
@@ -188,13 +179,21 @@ export class FileUploader extends React.Component<Props, States> {
 
   handleRemove = (fileRemove: fileName) => {
     var fileName = [...this.state.fileName],
-      file = [...this.state.file];
+      file = [...this.state.file],
+      active = [...this.state.active];
     for (var el in fileName) {
       if (fileName[el].name === fileRemove.name) {
         let index = Number(el);
         fileName.splice(index, 1);
         file.splice(index, 1);
+        active.map((el, i) => {
+          if (el === fileRemove.id) {
+            active.splice(i, 1);
+          }
+        });
+        // call the remove file api
         this.setState({
+          active: [...active],
           fileName: [...fileName],
           file: [...file],
         });
@@ -205,50 +204,52 @@ export class FileUploader extends React.Component<Props, States> {
 
   multipleUpload = () => {
     var fileName = [...this.state.fileName];
-    var found = false;
-    for (var el in fileName) {
-      if (fileName[el].uploaded === false) {
-        found = true;
-        let index = Number(el);
-        this.handleSingleUpload(fileName[el], index);
+    if (fileName.length > 0) {
+      var found = false;
+
+      for (var el in fileName) {
+        if (fileName[el].uploaded === false) {
+          found = true;
+          let index = Number(el);
+          this.handleSingleUpload(fileName[el], index);
+        }
       }
-    }
-    if (!found) {
-      NotificationManager.info("Be rest assured you've uploaded everything");
+      if (!found) {
+        NotificationManager.info("Be rest assured you've uploaded everything");
+      }
+    } else {
+      NotificationManager.info('Please select a file to Upload');
     }
   };
 
-  ProgressModal(perc: number, index: number) {
+  ProgressModal(perc: number, index: number, id: string) {
     var fileName = [...this.state.fileName];
 
     if (fileName[index].percentCompleted !== perc) {
       fileName[index].percentCompleted = perc;
+      console.log('active state change');
       this.setState(prevState => ({
         fileName: [...fileName],
-        active:
-          prevState.active.length === 0 ||
-          prevState.active.indexOf(index) === -1
-            ? prevState.active.concat([index])
-            : prevState.active,
       }));
     }
     if (fileName[index].percentCompleted === 100) {
       setTimeout(() => {
+        console.log('active state change');
+
         this.setState(prevState => ({
           progressModal: false,
-          active:
-            prevState.active.indexOf(index) !== -1
-              ? prevState.active.slice(
-                  prevState.active.indexOf(index) + 1,
-                  prevState.active.length
-                )
-              : prevState.active,
+          active: [],
         }));
       }, 1500);
     } else if (fileName[index].percentCompleted === 0) {
-      this.setState({
+      console.log('zero');
+      this.setState(prevState => ({
         progressModal: true,
-      });
+        active:
+          prevState.active.length === 0 || prevState.active.indexOf(id) === -1
+            ? prevState.active.concat([id])
+            : prevState.active,
+      }));
     }
   }
 
