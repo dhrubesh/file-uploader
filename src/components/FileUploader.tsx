@@ -9,7 +9,6 @@ import axios from 'axios';
 import ProgressBar from './ProgressBar';
 import FileList from './FileList';
 import { uuidv4 } from '../helper';
-import { file } from '@babel/types';
 interface fileName {
   id: string;
   name: string;
