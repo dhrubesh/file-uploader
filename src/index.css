@@ -14,17 +14,19 @@ code {
 }
 
 .progress-wrapper {
-  overflow: auto;
+  overflow-y: scroll;
   margin: auto;
   width: 90%;
   margin-top: 10px;
   padding: 10px;
-  /* display: flex; */
+  max-height: 250px;
 }
 
 .progress-child {
   display: flex;
   align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid sandybrown;
 }
 
 .progress-bar {
@@ -86,11 +88,15 @@ code {
   transition-duration: 0.4s;
 }
 
-.list-wrapper {
+.list-row {
   width: 800px;
   margin-top: 20px;
   position: relative;
   display: flex;
+}
+
+.list-wrapper {
+  padding: 20px;
 }
 
 .upload-status {
